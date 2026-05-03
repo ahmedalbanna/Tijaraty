@@ -1,0 +1,130 @@
+{
+  "entities": {
+    "Branch": {
+      "title": "Branch",
+      "description": "Store branch",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "address": { "type": "string" },
+        "createdAt": { "type": "number", "description": "Timestamp" }
+      },
+      "required": ["name"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Product catalog item",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "barcode": { "type": "string" },
+        "purchasePrice": { "type": "number" },
+        "sellingPrice": { "type": "number" },
+        "unit": { "type": "string" },
+        "reorderLevel": { "type": "number" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["name", "sellingPrice"]
+    },
+    "Inventory": {
+      "title": "Inventory",
+      "description": "Quantity of product per branch",
+      "type": "object",
+      "properties": {
+        "branchId": { "type": "string" },
+        "productId": { "type": "string" },
+        "quantity": { "type": "number" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["branchId", "productId", "quantity"]
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "Customer info, debt, points",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "points": { "type": "number" },
+        "debtBalance": { "type": "number" },
+        "creditLimit": { "type": "number" },
+        "customerType": { "type": "string", "enum": ["retail", "wholesale", "employee"] },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["name"]
+    },
+    "Supplier": {
+      "title": "Supplier",
+      "description": "Supplier info and debt",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "debtBalance": { "type": "number" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["name"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Sale or return transaction",
+      "type": "object",
+      "properties": {
+        "branchId": { "type": "string" },
+        "cashierId": { "type": "string" },
+        "customerId": { "type": "string", "description": "Optional" },
+        "type": { "type": "string", "enum": ["sale", "return"] },
+        "totalAmount": { "type": "number" },
+        "discount": { "type": "number" },
+        "paymentMethod": { "type": "string", "enum": ["cash", "shellen", "card", "debt", "mixed"] },
+        "status": { "type": "string", "enum": ["completed", "suspended", "cancelled"] },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["branchId", "cashierId", "type", "totalAmount"]
+    },
+    "TransactionItem": {
+      "title": "TransactionItem",
+      "description": "Line item for a transaction",
+      "type": "object",
+      "properties": {
+        "transactionId": { "type": "string" },
+        "productId": { "type": "string" },
+        "name": { "type": "string" },
+        "quantity": { "type": "number" },
+        "unitPrice": { "type": "number" },
+        "totalPrice": { "type": "number" }
+      },
+      "required": ["transactionId", "productId", "quantity", "unitPrice"]
+    }
+  },
+  "firestore": {
+    "/branches/{branchId}": {
+      "schema": { "$ref": "#/entities/Branch" },
+      "description": "Store branches"
+    },
+    "/products/{productId}": {
+      "schema": { "$ref": "#/entities/Product" },
+      "description": "Global product catalog"
+    },
+    "/inventory/{inventoryId}": {
+      "schema": { "$ref": "#/entities/Inventory" },
+      "description": "Inventory quantities per branch and product"
+    },
+    "/customers/{customerId}": {
+      "schema": { "$ref": "#/entities/Customer" },
+      "description": "Customers list"
+    },
+    "/suppliers/{supplierId}": {
+      "schema": { "$ref": "#/entities/Supplier" },
+      "description": "Suppliers list"
+    },
+    "/transactions/{transactionId}": {
+      "schema": { "$ref": "#/entities/Transaction" },
+      "description": "All transactions from all branches"
+    },
+    "/transactions/{transactionId}/items/{itemId}": {
+      "schema": { "$ref": "#/entities/TransactionItem" },
+      "description": "Items in a transaction"
+    }
+  }
+}

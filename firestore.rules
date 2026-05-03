@@ -1,0 +1,55 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() { return request.auth != null; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    
+    // As a simple generic offline-first rule for now snippet (Will harden if needed, but keeping it functional for the pos)
+    function isAdmin() { return isSignedIn(); } // For demo, allow any logged in user.
+
+    match /branches/{branchId} {
+      allow read: if isSignedIn() && isValidId(branchId);
+      allow list: if isSignedIn();
+      allow write: if isAdmin();
+    }
+    match /products/{productId} {
+      allow read: if isSignedIn() && isValidId(productId);
+      allow list: if isSignedIn();
+      allow write: if isAdmin();
+    }
+    match /inventory/{inventoryId} {
+      allow read: if isSignedIn() && isValidId(inventoryId);
+      allow list: if isSignedIn();
+      allow write: if isAdmin();
+    }
+    match /customers/{customerId} {
+      allow read: if isSignedIn() && isValidId(customerId);
+      allow list: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+    match /suppliers/{supplierId} {
+      allow read: if isSignedIn() && isValidId(supplierId);
+      allow list: if isSignedIn();
+      allow write: if isAdmin();
+    }
+    match /transactions/{transactionId} {
+      allow read: if isSignedIn() && isValidId(transactionId);
+      allow list: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+      
+      match /items/{itemId} {
+        allow read: if isSignedIn() && isValidId(itemId);
+        allow list: if isSignedIn();
+        allow create: if isSignedIn();
+      }
+    }
+  }
+}
